@@ -1,6 +1,6 @@
 # Metamask Login and Click Counter Application
 
-This is a simple web application that allows users to log in using Metamask and count their clicks. The click count is stored in a PostgreSQL database and retrieved upon login.
+This is a simple web application that allows users to log in using Metamask and count their clicks. The click count is stored in a PostgreSQL database and retrieved upon login, just for testing and understanding!
 
 ## Features
 
