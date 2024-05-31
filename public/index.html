@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metamask Login</title>
+</head>
+<body>
+    <button id="loginButton">Login with Metamask</button>
+    <div id="clickSection" style="display: none;">
+        <p>Click Count: <span id="clickCount">0</span></p>
+        <button id="clickButton">Click me!</button>
+    </div>
+    <script>
+        let currentAddress = '';
+        document.getElementById('loginButton').onclick = async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                    const address = accounts[0];
+                    currentAddress = address;
+                    console.log(`User's address is: ${address}`);
+                    
+                    // Send the address to your backend for authentication
+                    const response = await fetch('/api/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ address }),
+                    });
+
+                    const data = await response.json();
+                    console.log('Server response:', data);
+
+                    // Show click section and update click count
+                    document.getElementById('clickSection').style.display = 'block';
+                    document.getElementById('clickCount').innerText = data.data.game_data ? data.data.game_data.clicks : 0;
+                } catch (error) {
+                    console.error('User denied account access or there was an error', error);
+                }
+            } else {
+                alert('Please install Metamask!');
+            }
+        };
+
+        document.getElementById('clickButton').onclick = async () => {
+            const clickCountElement = document.getElementById('clickCount');
+            let clickCount = parseInt(clickCountElement.innerText) || 0;
+            clickCount++;
+            clickCountElement.innerText = clickCount;
+
+            // Send the updated click count to your backend
+            await fetch('/api/save-game', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ address: currentAddress, gameData: { clicks: clickCount } }),
+            });
+        };
+    </script>
+</body>
+</html>
